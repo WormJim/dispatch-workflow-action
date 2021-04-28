@@ -5934,13 +5934,12 @@ const toMilli = (timeWithUnit) => {
 function pullArgs() {
     var _a;
     // Required inputs
-    const token = core.getInput('token') || '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';
-    const workflowRef = core.getInput('workflow') || 'Build & Deploy';
+    const token = core.getInput('token');
+    const workflowRef = core.getInput('workflow');
     // Optional inputs, with defaults
-    const ref = core.getInput('ref') || 'main' || github.context.ref;
-    const [owner, repo] = ['Bundlefi', 'Bundlefi_Build'] ||
-        (0) || 0;
-    const inputs = JSON.parse(core.getInput('inputs') || '{ "release": "0.3.31" }' || '{}');
+    const ref = core.getInput('ref') || github.context.ref;
+    const [owner, repo] = ((_a = core.getInput('repo')) === null || _a === void 0 ? void 0 : _a.split('/')) || [github.context.repo.owner, github.context.repo.repo];
+    const inputs = JSON.parse(core.getInput('inputs') || '{}');
     // const displayWorkflowUrlStr = core.getInput('display-workflow-run-url');
     // const displayWorkflowUrl = displayWorkflowUrlStr && displayWorkflowUrlStr === 'true';
     // const displayWorkflowUrlTimeout = toMilli(core.getInput('display-workflow-run-url-timeout'));
@@ -5965,11 +5964,11 @@ function pullArgs() {
     };
 }
 function debug(title, content) {
-    // if (core.isDebug()) {
-    core.info(`::group::${title}`);
-    core.debug(JSON.stringify(content, null, 3));
-    core.info('::endgroup::');
-    // }
+    if (core.isDebug()) {
+        core.info(`::group::${title}`);
+        core.debug(JSON.stringify(content, null, 3));
+        core.info('::endgroup::');
+    }
 }
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -6197,6 +6196,7 @@ function run() {
     return main_awaiter(this, void 0, void 0, function* () {
         try {
             const { token, workflowRef, inputs, ref, owner, repo } = pullArgs();
+            core.info('Initializing Github');
             const workflowHandler = new WorkflowHandler(token, workflowRef, owner, repo, ref);
             // Trigger workflow run
             core.info(`Starting Workflow Dispatch 🚀`);
@@ -6214,6 +6214,7 @@ exports = run;
 if (__nccwpck_require__.c[__nccwpck_require__.s] === module) {
     run();
 }
+// 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
 
 
 /***/ }),

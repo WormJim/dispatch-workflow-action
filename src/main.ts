@@ -6,6 +6,7 @@ async function run() {
   try {
     const { token, workflowRef, inputs, ref, owner, repo } = pullArgs();
 
+    core.info('Initializing Github');
     const workflowHandler = new WorkflowHandler(token, workflowRef, owner, repo, ref);
 
     // Trigger workflow run
@@ -23,3 +24,5 @@ exports = run;
 if (require.main === module) {
   run();
 }
+
+// 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

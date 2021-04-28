@@ -36,14 +36,13 @@ const toMilli = (timeWithUnit: string): number => {
 
 export function pullArgs() {
   // Required inputs
-  const token = core.getInput('token') || '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';
-  const workflowRef = core.getInput('workflow') || 'Build & Deploy';
+  const token = core.getInput('token');
+  const workflowRef = core.getInput('workflow');
 
   // Optional inputs, with defaults
-  const ref = core.getInput('ref') || 'main' || github.context.ref;
-  const [owner, repo] = ['Bundlefi', 'Bundlefi_Build'] ||
-    core.getInput('repo')?.split('/') || [github.context.repo.owner, github.context.repo.repo];
-  const inputs = JSON.parse(core.getInput('inputs') || '{ "release": "0.3.31" }' || '{}');
+  const ref = core.getInput('ref') || github.context.ref;
+  const [owner, repo] = core.getInput('repo')?.split('/') || [github.context.repo.owner, github.context.repo.repo];
+  const inputs = JSON.parse(core.getInput('inputs') || '{}');
 
   // const displayWorkflowUrlStr = core.getInput('display-workflow-run-url');
   // const displayWorkflowUrl = displayWorkflowUrlStr && displayWorkflowUrlStr === 'true';
@@ -72,11 +71,11 @@ export function pullArgs() {
 }
 
 export function debug(title: string, content: any) {
-  // if (core.isDebug()) {
-  core.info(`::group::${title}`);
-  core.debug(JSON.stringify(content, null, 3));
-  core.info('::endgroup::');
-  // }
+  if (core.isDebug()) {
+    core.info(`::group::${title}`);
+    core.debug(JSON.stringify(content, null, 3));
+    core.info('::endgroup::');
+  }
 }
 
 export function sleep(ms: number) {
