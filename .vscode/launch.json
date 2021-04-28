@@ -1,0 +1,16 @@
+{
+  "configurations": [
+    {
+      "name": "Run Main",
+      "type": "node",
+      "request": "launch",
+      "args": ["src/main.ts"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+      "skipFiles": ["<node_internals>/**", "node_modules/**"],
+      "sourceMaps": true,
+      "cwd": "${workspaceRoot}",
+      "protocol": "inspector"
+    }
+  ]
+}
