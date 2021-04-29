@@ -6175,7 +6175,7 @@ class WorkflowHandler {
         this.repo = repo;
         this.ref = ref;
         this.triggerDate = 0;
-        console.log("Initialzied Ocktokit");
+        console.log('Initialzied Ocktokit');
         this.octokit = github.getOctokit(token);
     }
     triggerWorkflow(inputs) {
@@ -6281,8 +6281,11 @@ class WorkflowHandler {
     }
     getWorkflowId() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.workflowId)
+            console.log('Processing workflow id');
+            if (this.workflowId) {
+                console.log(`Workflow id is: ${this.workflowId}`);
                 return this.workflowId;
+            }
             if (this.isFilename(this.workflowRef)) {
                 this.workflowId = this.workflowRef;
                 core.debug(`Workflow id is: ${this.workflowRef}`);
@@ -6295,6 +6298,10 @@ class WorkflowHandler {
                 });
                 debug(`List Workflows`, workflows);
                 // Locate workflow either by name or id
+                if (workflows) {
+                    console.log(`Found ${workflows.length} workflow[s]`);
+                    console.dir(workflows);
+                }
                 const workflow = workflows.find((flow) => flow.name === this.workflowRef || flow.id.toString() === this.workflowRef);
                 if (!workflow)
                     throw new Error(`Unable to find workflow '${this.workflowRef}' in ${this.owner}/${this.repo}`);
