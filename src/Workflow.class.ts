@@ -71,13 +71,23 @@ export class WorkflowHandler {
 
       console.log('params', params);
 
-      const response = await this.octokit.actions.createWorkflowDispatch({
-        owner: this.owner,
-        repo: this.repo,
-        ref: this.ref,
-        workflow_id,
-        inputs,
-      });
+      const response = await this.octokit.request(
+        'POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches',
+        {
+          owner: this.owner,
+          repo: this.repo,
+          ref: this.ref,
+          workflow_id,
+          inputs,
+        },
+      );
+      //  .actions.createWorkflowDispatch({
+      //   owner: this.owner,
+      //   repo: this.repo,
+      //   ref: this.ref,
+      //   workflow_id,
+      //   inputs,
+      // });
 
       debug('Workflow Dispatch', response);
       return response;
