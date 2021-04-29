@@ -6344,6 +6344,7 @@ function run() {
             // Trigger workflow run
             console.log(`Starting Workflow Dispatch 🚀`);
             const disaptchEvent = yield workflowHandler.triggerWorkflow(inputs);
+            console.log('disaptchEvent', disaptchEvent);
             if (disaptchEvent.status === 204)
                 console.log('Workflow Dispatch Successful');
         }
