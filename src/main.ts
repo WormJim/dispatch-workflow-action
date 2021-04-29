@@ -6,10 +6,13 @@ import { inspect } from 'util';
 async function run() {
   try {
     const { token, workflowRef, inputs, ref, owner, repo } = pullInputs();
+
     const workflowHandler = new WorkflowHandler(token, workflowRef, owner, repo, ref);
 
     console.log(`Starting Workflow Dispatch 🚀`);
+
     const disaptchEvent = await workflowHandler.triggerWorkflow(inputs);
+
     if (disaptchEvent.status === 204) console.log('Workflow Dispatch Successful');
   } catch (error) {
     core.debug(inspect(error));
