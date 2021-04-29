@@ -6088,7 +6088,7 @@ function pullInputs() {
     const ref = core.getInput('ref') || github.context.ref;
     const [owner, repo] = ((_a = core.getInput('repo')) === null || _a === void 0 ? void 0 : _a.split('/')) || [github.context.repo.owner, github.context.repo.repo];
     const inputs = JSON.parse(core.getInput('inputs') || '{}');
-    return {
+    const outputs = {
         token,
         workflowRef,
         ref,
@@ -6096,6 +6096,8 @@ function pullInputs() {
         repo,
         inputs,
     };
+    console.log('outputs', outputs);
+    return outputs;
 }
 function debug(title, content) {
     if (core.isDebug()) {
@@ -6175,8 +6177,11 @@ class WorkflowHandler {
         this.repo = repo;
         this.ref = ref;
         this.triggerDate = 0;
-        console.log('Initialzied Ocktokit');
         this.octokit = github.getOctokit(token);
+        console.log('Initialzied Ocktokit');
+        console.dir({
+            workflowRef: this.workflowRef,
+        });
     }
     triggerWorkflow(inputs) {
         return __awaiter(this, void 0, void 0, function* () {
