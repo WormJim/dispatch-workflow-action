@@ -18,7 +18,7 @@ async function run() {
   }
 }
 
-module.exports = run;
+exports = run;
 
 if (require.main === module) {
   console.log('running');
