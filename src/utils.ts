@@ -20,7 +20,7 @@ const toMilli = (timeWithUnit: string): number => {
 export function pullInputs() {
   // Required inputs
   const token = core.getInput('token');
-  const workflowRef = core.getInput('workflow');
+  const workflowRef = core.getInput('workflowRef');
 
   // Optional inputs, with defaults
   const ref = core.getInput('ref') || github.context.ref;

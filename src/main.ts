@@ -21,7 +21,6 @@ async function run() {
 exports = run;
 
 // if (require.main === module) {
-console.log('running');
 run();
 // }
 
