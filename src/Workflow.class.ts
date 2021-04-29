@@ -96,6 +96,44 @@ export class WorkflowHandler {
     }
   }
 
+  private async getWorkflowId(): Promise<number | string> {
+    console.log('Matching workflow id');
+
+    if (this.workflowId) {
+      console.log(`Workflow id is: ${this.workflowId}`);
+      return this.workflowId;
+    }
+
+    if (this.isFilename(this.workflowRef)) {
+      this.workflowId = this.workflowRef;
+      core.debug(`Workflow id is: ${this.workflowRef}`);
+      return this.workflowId;
+    }
+
+    try {
+      const workflows = await this.octokit.paginate(this.octokit.actions.listRepoWorkflows, {
+        owner: this.owner,
+        repo: this.repo,
+      });
+
+      debug(`List Workflows`, workflows);
+
+      // Locate workflow either by name or id
+      const workflow = workflows.find(
+        (flow: any) => flow.name === this.workflowRef || flow.id.toString() === this.workflowRef,
+      );
+
+      if (!workflow) throw new Error(`Unable to find workflow '${this.workflowRef}' in ${this.owner}/${this.repo}`);
+
+      this.workflowId = workflow.id as number;
+      console.log(`Workflow id is: ${workflow.id}`);
+      return this.workflowId;
+    } catch (error) {
+      debug('List workflows error', error);
+      throw error;
+    }
+  }
+
   async getWorkflowRunStatus(): Promise<WorkflowRunResult> {
     try {
       const runId = await this.getWorkflowRunId();
@@ -176,44 +214,6 @@ export class WorkflowHandler {
       return this.workflowRunId;
     } catch (error) {
       debug('Get workflow run id error', error);
-      throw error;
-    }
-  }
-
-  private async getWorkflowId(): Promise<number | string> {
-    console.log('Matching workflow id');
-
-    if (this.workflowId) {
-      console.log(`Workflow id is: ${this.workflowId}`);
-      return this.workflowId;
-    }
-
-    if (this.isFilename(this.workflowRef)) {
-      this.workflowId = this.workflowRef;
-      core.debug(`Workflow id is: ${this.workflowRef}`);
-      return this.workflowId;
-    }
-
-    try {
-      const workflows = await this.octokit.paginate(this.octokit.actions.listRepoWorkflows, {
-        owner: this.owner,
-        repo: this.repo,
-      });
-
-      debug(`List Workflows`, workflows);
-
-      // Locate workflow either by name or id
-      const workflow = workflows.find(
-        (flow: any) => flow.name === this.workflowRef || flow.id.toString() === this.workflowRef,
-      );
-
-      if (!workflow) throw new Error(`Unable to find workflow '${this.workflowRef}' in ${this.owner}/${this.repo}`);
-
-      this.workflowId = workflow.id as number;
-      console.log(`Workflow id is: ${workflow.id}`);
-      return this.workflowId;
-    } catch (error) {
-      debug('List workflows error', error);
       throw error;
     }
   }
