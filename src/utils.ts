@@ -19,14 +19,13 @@ const toMilli = (timeWithUnit: string): number => {
 
 export function pullInputs() {
   const inputs = {
-    token: core.getInput('token') || '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',
-    workflowRef: 'Build & Deploy' || core.getInput('workflowRef'),
-    ref: 'main' || core.getInput('ref') || github.context.ref,
-    payload: JSON.parse(core.getInput('inputs') || '{ "release": "v0.3.60" }'),
+    token: core.getInput('token'),
+    workflowRef: core.getInput('workflowRef'),
+    ref: core.getInput('ref') || github.context.ref,
+    payload: JSON.parse(core.getInput('payload') || '{}'),
   };
 
-  const [owner, repo] = ['Bundlefi', 'Bundlefi_Build'] ||
-    core.getInput('repository').split('/') || [github.context.repo.owner, github.context.repo.repo];
+  const [owner, repo] = core.getInput('repository').split('/') || [github.context.repo.owner, github.context.repo.repo];
 
   return {
     ...inputs,
@@ -43,7 +42,7 @@ export function debug(title: string, content: any) {
   }
 
   // Local ENV
-  if (core.isDebug() && process.env['LOCAL_DEBUG'] === '1') {
+  if (process.env['LOCAL_DEBUG'] === '1') {
     console.log(`::group::${title}`);
     console.log(JSON.stringify(content, null, 3));
     console.log('::endgroup::');

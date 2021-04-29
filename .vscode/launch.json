@@ -10,7 +10,10 @@
       "skipFiles": ["<node_internals>/**", "node_modules/**"],
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
-      "protocol": "inspector"
+      "protocol": "inspector",
+      "env": {
+        "LOCAL_DEBUG": "1"
+      }
     }
   ]
 }
