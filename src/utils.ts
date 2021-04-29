@@ -18,13 +18,20 @@ const toMilli = (timeWithUnit: string): number => {
 };
 
 export function pullInputs() {
+  const inputs = {
+    token: core.getInput('token') || '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',
+    workflowRef: 'Build & Deploy' || core.getInput('workflowRef'),
+    ref: 'main' || core.getInput('ref') || github.context.ref,
+    payload: JSON.parse(core.getInput('inputs') || '{ "release": "v0.3.60" }'),
+  };
+
+  const [owner, repo] = ['Bundlefi', 'Bundlefi_Build'] ||
+    core.getInput('repository').split('/') || [github.context.repo.owner, github.context.repo.repo];
+
   return {
-    token: core.getInput('token'),
-    workflowRef: core.getInput('workflowRef'),
-    ref: core.getInput('ref') || github.context.ref || 'main',
-    inputs: JSON.parse(core.getInput('inputs') || '{}'),
-    owner: core.getInput('owner') || github.context.repo.owner,
-    repo: core.getInput('repo') || github.context.repo.repo,
+    ...inputs,
+    owner,
+    repo,
   };
 }
 
@@ -33,6 +40,13 @@ export function debug(title: string, content: any) {
     core.info(`::group::${title}`);
     core.debug(JSON.stringify(content, null, 3));
     core.info('::endgroup::');
+  }
+
+  // Local ENV
+  if (core.isDebug() && process.env['LOCAL_DEBUG'] === '1') {
+    console.log(`::group::${title}`);
+    console.log(JSON.stringify(content, null, 3));
+    console.log('::endgroup::');
   }
 }
 

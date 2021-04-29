@@ -5,13 +5,13 @@ import { inspect } from 'util';
 
 async function run() {
   try {
-    const { token, workflowRef, inputs, ref, owner, repo } = pullInputs();
+    const { token, workflowRef, payload, ref, owner, repo } = pullInputs();
 
     const workflowHandler = new WorkflowHandler(token, workflowRef, owner, repo, ref);
 
     console.log(`Starting Workflow Dispatch 🚀`);
 
-    const disaptchEvent = await workflowHandler.triggerWorkflow(inputs);
+    const disaptchEvent = await workflowHandler.triggerWorkflow(payload);
 
     if (disaptchEvent.status === 204) console.log('Workflow Dispatch Successful');
   } catch (error) {
@@ -23,7 +23,5 @@ async function run() {
     }
   }
 }
-
-exports = run;
 
 run();

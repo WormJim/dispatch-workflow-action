@@ -8,18 +8,18 @@ inputs:
   workflowRef: 
     description: 'Worflow Name, Filename or ID to run'
     required: true
-  inputs:
-    description: 'Properties to pass to the workflow in JSON format'
-    required: false
-  ref:
-    description: 'The git reference for the desired workflow to run. The reference can be a branch or tag name. Default is current default branch of ref'
-    required: false
-  repo:
-    description: 'The repository where the action is located'
-    required: false 
   owner:
     description: 'The owner of the repository'
     required: false 
+  repo:
+    description: 'The repository where the action is located'
+    required: false 
+  ref:
+    description: 'The git reference for the desired workflow to run. The reference can be a branch or tag name. Default is current default branch of ref'
+    required: false
+  payload:
+    description: 'Properties to pass to the workflow in JSON format'
+    required: false
 
 runs:
   using: 'node12'
