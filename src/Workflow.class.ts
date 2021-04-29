@@ -189,15 +189,14 @@ export class WorkflowHandler {
         console.dir(workflows);
       }
 
-      const workflow = workflows.find((flow: any) => {
-        console.log('flow.name === this.workflowRef', flow.name === this.workflowRef);
-        return flow.name === this.workflowRef || flow.id.toString() === this.workflowRef;
-      });
+      const workflow = workflows.find(
+        (flow: any) => flow.name === this.workflowRef || flow.id.toString() === this.workflowRef,
+      );
 
       if (!workflow) throw new Error(`Unable to find workflow '${this.workflowRef}' in ${this.owner}/${this.repo}`);
 
-      core.debug(`Workflow id is: ${workflow.id}`);
       this.workflowId = workflow.id as number;
+      console.log(`Workflow id is: ${workflow.id}`);
       return this.workflowId;
     } catch (error) {
       debug('List workflows error', error);
