@@ -20,9 +20,9 @@ async function run() {
 
 exports = run;
 
-if (require.main === module) {
-  console.log('running');
-  run();
-}
+// if (require.main === module) {
+console.log('running');
+run();
+// }
 
 // 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
