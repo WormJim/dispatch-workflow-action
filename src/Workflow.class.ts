@@ -203,11 +203,6 @@ export class WorkflowHandler {
       debug(`List Workflows`, workflows);
 
       // Locate workflow either by name or id
-      if (workflows) {
-        console.log(`Found ${workflows.length} workflow[s]`);
-        console.dir(workflows);
-      }
-
       const workflow = workflows.find(
         (flow: any) => flow.name === this.workflowRef || flow.id.toString() === this.workflowRef,
       );
