@@ -52,7 +52,7 @@ export class WorkflowHandler {
     private repo: string,
     private ref: string,
   ) {
-    console.log("Initialzied Ocktokit")
+    console.log('Initialzied Ocktokit');
     this.octokit = github.getOctokit(token);
   }
 
@@ -162,7 +162,12 @@ export class WorkflowHandler {
   }
 
   private async getWorkflowId(): Promise<number | string> {
-    if (this.workflowId) return this.workflowId;
+    console.log('Processing workflow id');
+
+    if (this.workflowId) {
+      console.log(`Workflow id is: ${this.workflowId}`);
+      return this.workflowId;
+    }
 
     if (this.isFilename(this.workflowRef)) {
       this.workflowId = this.workflowRef;
@@ -179,6 +184,11 @@ export class WorkflowHandler {
       debug(`List Workflows`, workflows);
 
       // Locate workflow either by name or id
+      if (workflows) {
+        console.log(`Found ${workflows.length} workflow[s]`);
+        console.dir(workflows);
+      }
+
       const workflow = workflows.find(
         (flow: any) => flow.name === this.workflowRef || flow.id.toString() === this.workflowRef,
       );
