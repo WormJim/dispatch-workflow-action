@@ -6183,6 +6183,14 @@ class WorkflowHandler {
             try {
                 const workflow_id = yield this.getWorkflowId();
                 this.triggerDate = Date.now();
+                const params = {
+                    owner: this.owner,
+                    repo: this.repo,
+                    ref: this.ref,
+                    workflow_id,
+                    inputs,
+                };
+                console.log('params', params);
                 const response = yield this.octokit.actions.createWorkflowDispatch({
                     owner: this.owner,
                     repo: this.repo,

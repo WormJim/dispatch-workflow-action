@@ -61,6 +61,16 @@ export class WorkflowHandler {
       const workflow_id = await this.getWorkflowId();
       this.triggerDate = Date.now();
 
+      const params = {
+        owner: this.owner,
+        repo: this.repo,
+        ref: this.ref,
+        workflow_id,
+        inputs,
+      };
+
+      console.log('params', params);
+
       const response = await this.octokit.actions.createWorkflowDispatch({
         owner: this.owner,
         repo: this.repo,
