@@ -6080,28 +6080,27 @@ const toMilli = (timeWithUnit) => {
     return time * unit;
 };
 function pullInputs() {
-    var _a;
-    // Required inputs
-    const token = core.getInput('token');
-    const workflowRef = core.getInput('workflowRef');
-    // Optional inputs, with defaults
-    const ref = core.getInput('ref') || github.context.ref;
-    const [owner, repo] = ((_a = core.getInput('repo')) === null || _a === void 0 ? void 0 : _a.split('/')) || [github.context.repo.owner, github.context.repo.repo];
-    const inputs = JSON.parse(core.getInput('inputs') || '{}');
-    return {
-        token,
-        workflowRef,
-        ref,
-        owner,
-        repo,
-        inputs,
+    const inputs = {
+        token: core.getInput('token'),
+        workflowRef: core.getInput('workflowRef'),
+        ref: core.getInput('ref') || github.context.ref,
+        payload: JSON.parse(core.getInput('payload') || '{}'),
     };
+    const [owner, repo] = core.getInput('repository').split('/') || [github.context.repo.owner, github.context.repo.repo];
+    return Object.assign(Object.assign({}, inputs), { owner,
+        repo });
 }
 function debug(title, content) {
     if (core.isDebug()) {
         core.info(`::group::${title}`);
         core.debug(JSON.stringify(content, null, 3));
         core.info('::endgroup::');
+    }
+    // Local ENV
+    if (process.env['LOCAL_DEBUG'] === '1') {
+        console.log(`::group::${title}`);
+        console.log(JSON.stringify(content, null, 3));
+        console.log('::endgroup::');
     }
 }
 function sleep(ms) {
@@ -6183,33 +6182,67 @@ class WorkflowHandler {
             try {
                 const workflow_id = yield this.getWorkflowId();
                 this.triggerDate = Date.now();
-                const params = {
-                    owner: this.owner,
-                    repo: this.repo,
-                    ref: this.ref,
-                    workflow_id,
-                    inputs,
-                };
-                console.log('params', params);
-                const response = yield this.octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+                debug('Workflow Dispatch Params', {
                     owner: this.owner,
                     repo: this.repo,
                     ref: this.ref,
                     workflow_id,
                     inputs,
                 });
-                //  .actions.createWorkflowDispatch({
-                //   owner: this.owner,
-                //   repo: this.repo,
-                //   ref: this.ref,
-                //   workflow_id,
-                //   inputs,
-                // });
+                // const response = await this.octokit.request(
+                //   'POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches',
+                //   {
+                //     owner: this.owner,
+                //     repo: this.repo,
+                //     ref: this.ref,
+                //     workflow_id,
+                //     inputs,
+                //   },
+                // );
+                const response = yield this.octokit.actions.createWorkflowDispatch({
+                    owner: this.owner,
+                    repo: this.repo,
+                    ref: this.ref,
+                    workflow_id,
+                    inputs,
+                });
                 debug('Workflow Dispatch', response);
                 return response;
             }
             catch (error) {
                 debug('Workflow Dispatch error', error.message);
+                throw error;
+            }
+        });
+    }
+    getWorkflowId() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('Matching workflow id');
+            if (this.workflowId) {
+                console.log(`Workflow id is: ${this.workflowId}`);
+                return this.workflowId;
+            }
+            if (this.isFilename(this.workflowRef)) {
+                this.workflowId = this.workflowRef;
+                core.debug(`Workflow id is: ${this.workflowRef}`);
+                return this.workflowId;
+            }
+            try {
+                const workflows = yield this.octokit.paginate(this.octokit.actions.listRepoWorkflows, {
+                    owner: this.owner,
+                    repo: this.repo,
+                });
+                debug(`List Workflows`, workflows);
+                // Locate workflow either by name or id
+                const workflow = workflows.find((flow) => flow.name === this.workflowRef || flow.id.toString() === this.workflowRef);
+                if (!workflow)
+                    throw new Error(`Unable to find workflow '${this.workflowRef}' in ${this.owner}/${this.repo}`);
+                this.workflowId = workflow.id;
+                console.log(`Workflow id is: ${workflow.id}`);
+                return this.workflowId;
+            }
+            catch (error) {
+                debug('List workflows error', error);
                 throw error;
             }
         });
@@ -6294,47 +6327,13 @@ class WorkflowHandler {
             }
         });
     }
-    getWorkflowId() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('Matching workflow id');
-            if (this.workflowId) {
-                console.log(`Workflow id is: ${this.workflowId}`);
-                return this.workflowId;
-            }
-            if (this.isFilename(this.workflowRef)) {
-                this.workflowId = this.workflowRef;
-                core.debug(`Workflow id is: ${this.workflowRef}`);
-                return this.workflowId;
-            }
-            try {
-                const workflows = yield this.octokit.paginate(this.octokit.actions.listRepoWorkflows, {
-                    owner: this.owner,
-                    repo: this.repo,
-                });
-                debug(`List Workflows`, workflows);
-                // Locate workflow either by name or id
-                if (workflows) {
-                    console.log(`Found ${workflows.length} workflow[s]`);
-                    console.dir(workflows);
-                }
-                const workflow = workflows.find((flow) => flow.name === this.workflowRef || flow.id.toString() === this.workflowRef);
-                if (!workflow)
-                    throw new Error(`Unable to find workflow '${this.workflowRef}' in ${this.owner}/${this.repo}`);
-                this.workflowId = workflow.id;
-                console.log(`Workflow id is: ${workflow.id}`);
-                return this.workflowId;
-            }
-            catch (error) {
-                debug('List workflows error', error);
-                throw error;
-            }
-        });
-    }
     isFilename(workflowRef) {
         return /.+\.ya?ml$/.test(workflowRef);
     }
 }
 
+// EXTERNAL MODULE: external "util"
+var external_util_ = __nccwpck_require__(669);
 ;// CONCATENATED MODULE: ./src/main.ts
 var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -6348,25 +6347,28 @@ var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arg
 
 
 
+
 function run() {
     return main_awaiter(this, void 0, void 0, function* () {
         try {
-            const { token, workflowRef, inputs, ref, owner, repo } = pullInputs();
+            const { token, workflowRef, payload, ref, owner, repo } = pullInputs();
             const workflowHandler = new WorkflowHandler(token, workflowRef, owner, repo, ref);
-            // Trigger workflow run
             console.log(`Starting Workflow Dispatch 🚀`);
-            const disaptchEvent = yield workflowHandler.triggerWorkflow(inputs);
-            console.log('disaptchEvent', disaptchEvent);
+            const disaptchEvent = yield workflowHandler.triggerWorkflow(payload);
             if (disaptchEvent.status === 204)
                 console.log('Workflow Dispatch Successful');
         }
         catch (error) {
-            core.setFailed(error.message);
-            core.debug(error.stack);
+            core.debug((0,external_util_.inspect)(error));
+            if (error.status >= 400) {
+                core.setFailed('Repository not found or insufficent access rights');
+            }
+            else {
+                core.setFailed(error.message);
+            }
         }
     });
 }
-exports = run;
 run();
 
 })();
