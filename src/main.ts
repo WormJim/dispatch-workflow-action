@@ -11,6 +11,7 @@ async function run() {
     // Trigger workflow run
     console.log(`Starting Workflow Dispatch 🚀`);
     const disaptchEvent = await workflowHandler.triggerWorkflow(inputs);
+    console.log('disaptchEvent', disaptchEvent);
     if (disaptchEvent.status === 204) console.log('Workflow Dispatch Successful');
   } catch (error) {
     core.setFailed(error.message);
