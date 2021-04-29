@@ -6083,7 +6083,7 @@ function pullInputs() {
     var _a;
     // Required inputs
     const token = core.getInput('token');
-    const workflowRef = core.getInput('workflow');
+    const workflowRef = core.getInput('workflowRef');
     // Optional inputs, with defaults
     const ref = core.getInput('ref') || github.context.ref;
     const [owner, repo] = ((_a = core.getInput('repo')) === null || _a === void 0 ? void 0 : _a.split('/')) || [github.context.repo.owner, github.context.repo.repo];
@@ -6352,7 +6352,6 @@ function run() {
 }
 exports = run;
 // if (require.main === module) {
-console.log('running');
 run();
 // }
 // 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
