@@ -8,10 +8,7 @@ inputs:
   workflowRef: 
     description: 'Worflow Name, Filename or ID to run'
     required: true
-  owner:
-    description: 'The owner of the repository'
-    required: false 
-  repo:
+  repository:
     description: 'The repository where the action is located'
     required: false 
   ref:
