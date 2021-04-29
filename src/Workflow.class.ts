@@ -54,9 +54,6 @@ export class WorkflowHandler {
   ) {
     this.octokit = github.getOctokit(token);
     console.log('Initialzied Ocktokit');
-    console.dir({
-      workflowRef: this.workflowRef,
-    });
   }
 
   async triggerWorkflow(inputs: { [prop: string]: string }) {
@@ -165,7 +162,7 @@ export class WorkflowHandler {
   }
 
   private async getWorkflowId(): Promise<number | string> {
-    console.log('Processing workflow id');
+    console.log('Matching workflow id');
 
     if (this.workflowId) {
       console.log(`Workflow id is: ${this.workflowId}`);
@@ -192,9 +189,10 @@ export class WorkflowHandler {
         console.dir(workflows);
       }
 
-      const workflow = workflows.find(
-        (flow: any) => flow.name === this.workflowRef || flow.id.toString() === this.workflowRef,
-      );
+      const workflow = workflows.find((flow: any) => {
+        console.log('flow.name === this.workflowRef', flow.name === this.workflowRef);
+        return flow.name === this.workflowRef || flow.id.toString() === this.workflowRef;
+      });
 
       if (!workflow) throw new Error(`Unable to find workflow '${this.workflowRef}' in ${this.owner}/${this.repo}`);
 

@@ -27,7 +27,7 @@ export function pullInputs() {
   const [owner, repo] = core.getInput('repo')?.split('/') || [github.context.repo.owner, github.context.repo.repo];
   const inputs = JSON.parse(core.getInput('inputs') || '{}');
 
-  const outputs = {
+  return {
     token,
     workflowRef,
     ref,
@@ -35,10 +35,6 @@ export function pullInputs() {
     repo,
     inputs,
   };
-
-  console.log('outputs', outputs);
-
-  return outputs;
 }
 
 export function debug(title: string, content: any) {

@@ -6088,7 +6088,7 @@ function pullInputs() {
     const ref = core.getInput('ref') || github.context.ref;
     const [owner, repo] = ((_a = core.getInput('repo')) === null || _a === void 0 ? void 0 : _a.split('/')) || [github.context.repo.owner, github.context.repo.repo];
     const inputs = JSON.parse(core.getInput('inputs') || '{}');
-    const outputs = {
+    return {
         token,
         workflowRef,
         ref,
@@ -6096,8 +6096,6 @@ function pullInputs() {
         repo,
         inputs,
     };
-    console.log('outputs', outputs);
-    return outputs;
 }
 function debug(title, content) {
     if (core.isDebug()) {
@@ -6179,9 +6177,6 @@ class WorkflowHandler {
         this.triggerDate = 0;
         this.octokit = github.getOctokit(token);
         console.log('Initialzied Ocktokit');
-        console.dir({
-            workflowRef: this.workflowRef,
-        });
     }
     triggerWorkflow(inputs) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -6286,7 +6281,7 @@ class WorkflowHandler {
     }
     getWorkflowId() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('Processing workflow id');
+            console.log('Matching workflow id');
             if (this.workflowId) {
                 console.log(`Workflow id is: ${this.workflowId}`);
                 return this.workflowId;
@@ -6307,7 +6302,10 @@ class WorkflowHandler {
                     console.log(`Found ${workflows.length} workflow[s]`);
                     console.dir(workflows);
                 }
-                const workflow = workflows.find((flow) => flow.name === this.workflowRef || flow.id.toString() === this.workflowRef);
+                const workflow = workflows.find((flow) => {
+                    console.log('flow.name === this.workflowRef', flow.name === this.workflowRef);
+                    return flow.name === this.workflowRef || flow.id.toString() === this.workflowRef;
+                });
                 if (!workflow)
                     throw new Error(`Unable to find workflow '${this.workflowRef}' in ${this.owner}/${this.repo}`);
                 core.debug(`Workflow id is: ${workflow.id}`);
