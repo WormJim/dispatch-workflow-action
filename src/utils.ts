@@ -18,22 +18,13 @@ const toMilli = (timeWithUnit: string): number => {
 };
 
 export function pullInputs() {
-  // Required inputs
-  const token = core.getInput('token');
-  const workflowRef = core.getInput('workflowRef');
-
-  // Optional inputs, with defaults
-  const ref = core.getInput('ref') || github.context.ref;
-  const [owner, repo] = core.getInput('repo')?.split('/') || [github.context.repo.owner, github.context.repo.repo];
-  const inputs = JSON.parse(core.getInput('inputs') || '{}');
-
   return {
-    token,
-    workflowRef,
-    ref,
-    owner,
-    repo,
-    inputs,
+    token: core.getInput('token'),
+    workflowRef: core.getInput('workflowRef'),
+    ref: core.getInput('ref') || github.context.ref || 'main',
+    inputs: JSON.parse(core.getInput('inputs') || '{}'),
+    owner: core.getInput('owner') || github.context.repo.owner,
+    repo: core.getInput('repo') || github.context.repo.repo,
   };
 }
 
