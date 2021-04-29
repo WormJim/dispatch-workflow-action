@@ -6302,14 +6302,11 @@ class WorkflowHandler {
                     console.log(`Found ${workflows.length} workflow[s]`);
                     console.dir(workflows);
                 }
-                const workflow = workflows.find((flow) => {
-                    console.log('flow.name === this.workflowRef', flow.name === this.workflowRef);
-                    return flow.name === this.workflowRef || flow.id.toString() === this.workflowRef;
-                });
+                const workflow = workflows.find((flow) => flow.name === this.workflowRef || flow.id.toString() === this.workflowRef);
                 if (!workflow)
                     throw new Error(`Unable to find workflow '${this.workflowRef}' in ${this.owner}/${this.repo}`);
-                core.debug(`Workflow id is: ${workflow.id}`);
                 this.workflowId = workflow.id;
+                console.log(`Workflow id is: ${workflow.id}`);
                 return this.workflowId;
             }
             catch (error) {
@@ -6355,10 +6352,7 @@ function run() {
     });
 }
 exports = run;
-// if (require.main === module) {
 run();
-// }
-// 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
 
 })();
 
