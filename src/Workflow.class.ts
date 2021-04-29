@@ -52,6 +52,7 @@ export class WorkflowHandler {
     private repo: string,
     private ref: string,
   ) {
+    console.log("Initialzied Ocktokit")
     this.octokit = github.getOctokit(token);
   }
 

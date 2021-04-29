@@ -1,27 +1,27 @@
 import * as core from '@actions/core';
-import { pullArgs } from './utils';
+import { pullInputs } from './utils';
 import { WorkflowHandler } from './Workflow.class';
 
 async function run() {
   try {
-    const { token, workflowRef, inputs, ref, owner, repo } = pullArgs();
+    const { token, workflowRef, inputs, ref, owner, repo } = pullInputs();
 
-    core.info('Initializing Github');
     const workflowHandler = new WorkflowHandler(token, workflowRef, owner, repo, ref);
 
     // Trigger workflow run
-    core.info(`Starting Workflow Dispatch 🚀`);
+    console.log(`Starting Workflow Dispatch 🚀`);
     const disaptchEvent = await workflowHandler.triggerWorkflow(inputs);
-    if (disaptchEvent.status === 204) core.info('Workflow Dispatch Successful');
+    if (disaptchEvent.status === 204) console.log('Workflow Dispatch Successful');
   } catch (error) {
     core.setFailed(error.message);
     core.debug(error.stack);
   }
 }
 
-exports = run;
+module.exports = run;
 
 if (require.main === module) {
+  console.log('running');
   run();
 }
 

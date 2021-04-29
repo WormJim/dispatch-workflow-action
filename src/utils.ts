@@ -17,24 +17,7 @@ const toMilli = (timeWithUnit: string): number => {
   return time * unit;
 };
 
-// const pullArgs = () => {
-//   const workflowName = core.getInput('workflow_name') || 'Build & Deploy';
-
-//   const inputs = core.getInput('outputs') || { release: '0.3.31' };
-
-//   const ref = core.getInput('ref') || github.context.ref || 'main';
-
-//   const [owner, repo] = core.getInput('repo') || ['Bundlefi', 'Bundlefi_Build'] || [
-//       github.context.repo.owner,
-//       github.context.repo.repo,
-//     ];
-
-//   const token = core.getInput('token') || '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';
-
-//   return { token, workflowName, inputs, ref, owner, repo };
-// };
-
-export function pullArgs() {
+export function pullInputs() {
   // Required inputs
   const token = core.getInput('token');
   const workflowRef = core.getInput('workflow');
@@ -44,16 +27,6 @@ export function pullArgs() {
   const [owner, repo] = core.getInput('repo')?.split('/') || [github.context.repo.owner, github.context.repo.repo];
   const inputs = JSON.parse(core.getInput('inputs') || '{}');
 
-  // const displayWorkflowUrlStr = core.getInput('display-workflow-run-url');
-  // const displayWorkflowUrl = displayWorkflowUrlStr && displayWorkflowUrlStr === 'true';
-  // const displayWorkflowUrlTimeout = toMilli(core.getInput('display-workflow-run-url-timeout'));
-  // const displayWorkflowUrlInterval = toMilli(core.getInput('display-workflow-run-url-interval'));
-
-  // const waitForCompletionStr = core.getInput('wait-for-completion');
-  // const waitForCompletion = waitForCompletionStr && waitForCompletionStr === 'true';
-  // const waitForCompletionTimeout = toMilli(core.getInput('wait-for-completion-timeout'));
-  // const checkStatusInterval = toMilli(core.getInput('wait-for-completion-interval'));
-
   return {
     token,
     workflowRef,
@@ -61,12 +34,6 @@ export function pullArgs() {
     owner,
     repo,
     inputs,
-    // displayWorkflowUrl,
-    // displayWorkflowUrlTimeout,
-    // displayWorkflowUrlInterval,
-    // checkStatusInterval,
-    // waitForCompletion,
-    // waitForCompletionTimeout,
   };
 }
 

@@ -5920,18 +5920,7 @@ const toMilli = (timeWithUnit) => {
     const time = parseFloat(timeWithUnit);
     return time * unit;
 };
-// const pullArgs = () => {
-//   const workflowName = core.getInput('workflow_name') || 'Build & Deploy';
-//   const inputs = core.getInput('outputs') || { release: '0.3.31' };
-//   const ref = core.getInput('ref') || github.context.ref || 'main';
-//   const [owner, repo] = core.getInput('repo') || ['Bundlefi', 'Bundlefi_Build'] || [
-//       github.context.repo.owner,
-//       github.context.repo.repo,
-//     ];
-//   const token = core.getInput('token') || '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';
-//   return { token, workflowName, inputs, ref, owner, repo };
-// };
-function pullArgs() {
+function pullInputs() {
     var _a;
     // Required inputs
     const token = core.getInput('token');
@@ -5940,14 +5929,6 @@ function pullArgs() {
     const ref = core.getInput('ref') || github.context.ref;
     const [owner, repo] = ((_a = core.getInput('repo')) === null || _a === void 0 ? void 0 : _a.split('/')) || [github.context.repo.owner, github.context.repo.repo];
     const inputs = JSON.parse(core.getInput('inputs') || '{}');
-    // const displayWorkflowUrlStr = core.getInput('display-workflow-run-url');
-    // const displayWorkflowUrl = displayWorkflowUrlStr && displayWorkflowUrlStr === 'true';
-    // const displayWorkflowUrlTimeout = toMilli(core.getInput('display-workflow-run-url-timeout'));
-    // const displayWorkflowUrlInterval = toMilli(core.getInput('display-workflow-run-url-interval'));
-    // const waitForCompletionStr = core.getInput('wait-for-completion');
-    // const waitForCompletion = waitForCompletionStr && waitForCompletionStr === 'true';
-    // const waitForCompletionTimeout = toMilli(core.getInput('wait-for-completion-timeout'));
-    // const checkStatusInterval = toMilli(core.getInput('wait-for-completion-interval'));
     return {
         token,
         workflowRef,
@@ -5955,12 +5936,6 @@ function pullArgs() {
         owner,
         repo,
         inputs,
-        // displayWorkflowUrl,
-        // displayWorkflowUrlTimeout,
-        // displayWorkflowUrlInterval,
-        // checkStatusInterval,
-        // waitForCompletion,
-        // waitForCompletionTimeout,
     };
 }
 function debug(title, content) {
@@ -6041,6 +6016,7 @@ class WorkflowHandler {
         this.repo = repo;
         this.ref = ref;
         this.triggerDate = 0;
+        console.log("Initialzied Ocktokit");
         this.octokit = github.getOctokit(token);
     }
     triggerWorkflow(inputs) {
@@ -6195,14 +6171,13 @@ var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arg
 function run() {
     return main_awaiter(this, void 0, void 0, function* () {
         try {
-            const { token, workflowRef, inputs, ref, owner, repo } = pullArgs();
-            core.info('Initializing Github');
+            const { token, workflowRef, inputs, ref, owner, repo } = pullInputs();
             const workflowHandler = new WorkflowHandler(token, workflowRef, owner, repo, ref);
             // Trigger workflow run
-            core.info(`Starting Workflow Dispatch 🚀`);
+            console.log(`Starting Workflow Dispatch 🚀`);
             const disaptchEvent = yield workflowHandler.triggerWorkflow(inputs);
             if (disaptchEvent.status === 204)
-                core.info('Workflow Dispatch Successful');
+                console.log('Workflow Dispatch Successful');
         }
         catch (error) {
             core.setFailed(error.message);
@@ -6210,8 +6185,9 @@ function run() {
         }
     });
 }
-exports = run;
+module.exports = run;
 if (__nccwpck_require__.c[__nccwpck_require__.s] === module) {
+    console.log('running');
     run();
 }
 // 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
