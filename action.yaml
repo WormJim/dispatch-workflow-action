@@ -1,25 +1,16 @@
-name: 'Dispatch Workflow Action'
-description: 'Dispatch Github Action Workflow'
+name: 'Trigger Open PR workflow'
+description: 'Trigger Open PR workflow'
 
 inputs:
-  token: 
+  token:
     description: 'GitHub Token with write access'
     required: true
-  workflowRef: 
-    description: 'Worflow Name, Filename or ID to run'
+  workflow_filename:
+    description: 'Workflow Filename'
     required: true
-  repository:
-    description: 'The repository where the action is located'
-    required: false 
-  ref:
-    description: 'The git reference for the desired workflow to run. The reference can be a branch or tag name. Default is current default branch of ref'
-    required: false
-  payload:
-    description: 'Properties to pass to the workflow in JSON format'
-    required: false
 
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
 
 branding:

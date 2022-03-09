@@ -1,28 +1,13 @@
-import * as core from '@actions/core';
-import * as github from '@actions/github';
+import { inspect } from 'util';
+import core from '@actions/core';
+import github from '@actions/github';
+import axios from 'axios';
+import { GraphQLClient, gql } from 'graphql-request';
 
-enum TimeUnit {
-  S = 1000,
-  M = 60 * 1000,
-  H = 60 * 60 * 1000,
-}
-
-const toMilli = (timeWithUnit: string): number => {
-  const unitStr = timeWithUnit.substr(timeWithUnit.length - 1);
-  const unit = TimeUnit[unitStr.toUpperCase() as keyof typeof TimeUnit];
-  if (!unit) {
-    throw new Error('Unknown time unit ' + unitStr);
-  }
-  const time = parseFloat(timeWithUnit);
-  return time * unit;
-};
-
-export function pullInputs() {
+export const pullInputs = (): { token: string; workflow_filename: string; owner: string; repo: string } => {
   const inputs = {
     token: core.getInput('token'),
-    workflowRef: core.getInput('workflowRef'),
-    ref: core.getInput('ref') || github.context.ref,
-    payload: JSON.parse(core.getInput('payload') || '{}'),
+    workflow_filename: core.getInput('workflow_filename'),
   };
 
   const [owner, repo] = core.getInput('repository').split('/') || [github.context.repo.owner, github.context.repo.repo];
@@ -32,44 +17,68 @@ export function pullInputs() {
     owner,
     repo,
   };
-}
+};
 
-export function debug(title: string, content: any) {
-  if (core.isDebug()) {
-    core.info(`::group::${title}`);
-    core.debug(JSON.stringify(content, null, 3));
-    core.info('::endgroup::');
+export const getOpenPRBranches = async (config: { repo: string; owner: string; token: string }): Promise<string[]> => {
+  console.log(`query open PR branches for ${config.owner}/${config.repo}`);
+
+  const endpoint = 'https://api.github.com/graphql';
+  const graphQLClient = new GraphQLClient(endpoint, {
+    headers: {
+      authorization: `Bearer ${config.token}`,
+    },
+  });
+
+  const query = gql`
+    query Query($repo: String!, $owner: String!) {
+      repository(name: $repo, owner: $owner) {
+        pullRequests(first: 100, states: OPEN) {
+          nodes {
+            headRefName
+          }
+        }
+      }
+    }
+  `;
+
+  const data = await graphQLClient.request(query, { repo: config.repo, owner: config.owner });
+  const arrOfHeadRef = data.repository.pullRequests.nodes;
+  return arrOfHeadRef.map((pr: { headRefName: string }) => pr.headRefName);
+};
+
+export const triggerWorkflow = async (config: {
+  owner: string;
+  repo: string;
+  workflow_filename: string;
+  token: string;
+  ref: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}): Promise<any[]> => {
+  const restClient = axios.create({
+    baseURL: 'https://api.github.com',
+    headers: {
+      authorization: `Bearer ${config.token}`,
+      accept: 'application/vnd.github.v3+json',
+    },
+  });
+
+  const owner = config.owner || 'geekeast';
+  const repo = config.repo || 'external-workflow-trigger';
+  const workflow_id = config.workflow_filename || 'pipeline.yml';
+
+  try {
+    const res = await restClient.post(`/repos/${owner}/${repo}/actions/workflows/${workflow_id}/dispatches`, {
+      ref: config.ref,
+    });
+
+    if (res.status === 204) {
+      console.log(`trigger the workflow ${workflow_id} in ${owner}/${repo} successfully`);
+      return [true, config.ref];
+    } else {
+      return [false, config.ref];
+    }
+  } catch (error) {
+    core.debug(inspect(error));
+    return [false, config.ref];
   }
-
-  // Local ENV
-  if (process.env['LOCAL_DEBUG'] === '1') {
-    console.log(`::group::${title}`);
-    console.log(JSON.stringify(content, null, 3));
-    console.log('::endgroup::');
-  }
-}
-
-export function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export function isTimedOut(start: number, waitForCompletionTimeout: number) {
-  return Date.now() > start + waitForCompletionTimeout;
-}
-
-export function formatDuration(duration: number) {
-  const durationSeconds = duration / 1000;
-  const hours = Math.floor(durationSeconds / 3600);
-  const minutes = Math.floor((durationSeconds - hours * 3600) / 60);
-  const seconds = durationSeconds - hours * 3600 - minutes * 60;
-
-  let hoursStr = hours + '';
-  let minutesStr = minutes + '';
-  let secondsStr = seconds + '';
-
-  if (hours < 10) hoursStr = '0' + hoursStr;
-  if (minutes < 10) minutesStr = '0' + minutesStr;
-  if (seconds < 10) secondsStr = '0' + secondsStr;
-
-  return `${hoursStr}h ${minutesStr}m ${secondsStr}s`;
-}
+};
